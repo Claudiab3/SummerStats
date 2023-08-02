@@ -1,0 +1,89 @@
+---
+title: "Week 6 Analysis"
+output: html_document
+date: "2023-08-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages}
+library(partykit)
+library(ggplot2)
+
+```
+
+```{r load}
+#Set seed to make results reporducible, numbers do not matter
+set.seed(20230802)
+
+#load the data
+data<-read.csv("Week 6/Week 6 Example Data.csv")
+
+#Set categorical variables as factors:
+#do this and overwrite
+data$PIN<-as.factor(data$PIN)
+data$shareAmount<-as.factor(data$shareAmount)
+data$shareType<-as.factor(data$shareType)
+data$dollChoice<-as.factor(data$dollChoice)
+
+```
+
+## Decision Tree
+Predict participant doll choice from age and experiemental conditions using a decision tree
+```{r decTree}
+#ctree from party kit
+
+#fit the decision tree
+tree<-ctree(dollChoice~age + shareAmount +shareType, data=data)
+
+#plot the decision tree
+plot(tree)
+
+```
+
+##Cluster Analysis
+
+Assessing whether children cluster according to food preferences
+```{r Cluster}
+#Plotting
+pickyPlot<-ggplot(data=data, 
+                  aes(x=pickyVeg,
+                  y=pickyFruit))+
+  labs(x= "Pickiness about veggies",
+       y= "Pickiness about Fruits")+
+      theme_gray(base_size=20)+
+  geom_jitter()
+
+#print plot
+pickyPlot
+
+#fit cluster analysis
+kFit <-kmeans(data[,3:4], centers=3)
+
+#extract means of clusters
+
+kCenters <-kFit$centers
+kCenters
+
+#assign the clusters to our data
+
+data$cluster <-as.factor(kFit$cluster)
+
+#plot data
+pickyPlot <-pickyPlot +
+  aes(color= data$cluster)+
+  labs(color= "k-Means Cluster")
+
+pickyPlot
+
+#9 times
+#Ask yourself, what makes sense with your variables
+
+```
+
+
+
+
+
